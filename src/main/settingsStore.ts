@@ -11,9 +11,9 @@ export type SettingsStore = {
   get(key: "settings"): Settings;
 };
 
-function normalizeNumber(value: unknown, fallback: number, min: number, max: number): number {
+function normalizeNumber(value: unknown, fallback: number, min: number): number {
   if (typeof value !== "number" || !Number.isFinite(value)) return fallback;
-  return Math.min(max, Math.max(min, Math.round(value)));
+  return Math.max(min, Math.round(value));
 }
 
 export function normalizeSettings(stored: Partial<Settings> = {}): Settings {
@@ -32,8 +32,7 @@ export function normalizeSettings(stored: Partial<Settings> = {}): Settings {
     breakRunDurationSeconds: normalizeNumber(
       stored.breakRunDurationSeconds,
       DEFAULT_SETTINGS.breakRunDurationSeconds,
-      10,
-      300
+      10
     )
   };
 }

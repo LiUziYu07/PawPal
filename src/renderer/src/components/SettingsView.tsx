@@ -472,7 +472,7 @@ export function SettingsView(): JSX.Element {
             <NumberControl
               value={draft.breakIntervalMinutes}
               min={1}
-              max={180}
+              max={900}
               unit={labels.minuteUnit}
               onChange={(breakIntervalMinutes) => updateDraft({ breakIntervalMinutes })}
             />
@@ -484,7 +484,7 @@ export function SettingsView(): JSX.Element {
             <NumberControl
               value={draft.breakRunDurationSeconds}
               min={10}
-              max={300}
+              max={900}
               unit={labels.secondUnit}
               onChange={(breakRunDurationSeconds) => updateDraft({ breakRunDurationSeconds })}
             />
@@ -506,7 +506,7 @@ export function SettingsView(): JSX.Element {
             <NumberControl
               value={draft.hydrationIntervalMinutes}
               min={1}
-              max={240}
+              max={900}
               unit={labels.minuteUnit}
               onChange={(hydrationIntervalMinutes) => updateDraft({ hydrationIntervalMinutes })}
             />
@@ -522,7 +522,7 @@ export function SettingsView(): JSX.Element {
             <NumberControl
               value={draft.focusDurationMinutes}
               min={1}
-              max={120}
+              max={900}
               unit={labels.minuteUnit}
               onChange={(focusDurationMinutes) => updateDraft({ focusDurationMinutes })}
             />
@@ -551,7 +551,7 @@ export function SettingsView(): JSX.Element {
                 <NumberControl
                   value={draft.distractionGraceSeconds}
                   min={0}
-                  max={120}
+                  max={900}
                   unit={labels.secondUnit}
                   onChange={(distractionGraceSeconds) => updateDraft({ distractionGraceSeconds })}
                 />

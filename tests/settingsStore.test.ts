@@ -40,10 +40,10 @@ export const tests = [
     }
   },
   {
-    name: "normalizeSettings clamps break run duration",
+    name: "normalizeSettings enforces break run duration minimum only",
     run(): void {
       assert.equal(normalizeSettings({ breakRunDurationSeconds: 5 }).breakRunDurationSeconds, 10);
-      assert.equal(normalizeSettings({ breakRunDurationSeconds: 600 }).breakRunDurationSeconds, 300);
+      assert.equal(normalizeSettings({ breakRunDurationSeconds: 1200 }).breakRunDurationSeconds, 1200);
       assert.equal(
         normalizeSettings({ breakRunDurationSeconds: Number.NaN }).breakRunDurationSeconds,
         DEFAULT_SETTINGS.breakRunDurationSeconds
