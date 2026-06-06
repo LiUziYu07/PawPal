@@ -51,6 +51,7 @@ export type BlockingMode = "break" | "breakRun" | "hydration" | "focusWarning" |
 export type Settings = {
   language: Language;
   petAppearanceId: PetAppearanceId;
+  petHoverOpacity: number;
   customPetAppearance: CustomPetAppearance | null;
   onboardingDismissed: boolean;
   launchAtLoginEnabled: boolean;

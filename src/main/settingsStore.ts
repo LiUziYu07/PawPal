@@ -24,6 +24,10 @@ export function normalizeSettings(stored: Partial<Settings> = {}): Settings {
     ...DEFAULT_SETTINGS,
     ...stored,
     language: resolveLanguage(stored.language ?? DEFAULT_SETTINGS.language),
+    petHoverOpacity:
+      typeof stored.petHoverOpacity === "number" && Number.isFinite(stored.petHoverOpacity)
+        ? Math.max(0, Math.min(1, stored.petHoverOpacity))
+        : DEFAULT_SETTINGS.petHoverOpacity,
     petAppearanceId:
       petAppearanceId === "custom" && !hasRequiredCustomPetAssets(customPetAppearance)
         ? DEFAULT_SETTINGS.petAppearanceId

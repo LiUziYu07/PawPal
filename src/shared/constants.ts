@@ -3,6 +3,7 @@ import type { Settings, TodayStats } from "./types";
 export const DEFAULT_SETTINGS: Settings = {
   language: "zh-CN",
   petAppearanceId: "lineDog",
+  petHoverOpacity: 0.2,
   customPetAppearance: null,
   onboardingDismissed: false,
   launchAtLoginEnabled: false,

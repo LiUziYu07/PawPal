@@ -170,6 +170,34 @@ function SelectControl({
   );
 }
 
+function SliderControl({
+  value,
+  min,
+  max,
+  step,
+  onChange
+}: {
+  value: number;
+  min: number;
+  max: number;
+  step: number;
+  onChange: (value: number) => void;
+}): JSX.Element {
+  return (
+    <div className="pref-slider">
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={(event) => onChange(Number(event.target.value))}
+      />
+      <span className="pref-slider__value">{Math.round(value * 100)}%</span>
+    </div>
+  );
+}
+
 function ChipsControl({
   value,
   onChange,
@@ -441,6 +469,18 @@ export function SettingsView(): JSX.Element {
               value={language}
               options={[...LANGUAGE_OPTIONS]}
               onChange={(value) => updateDraft({ language: resolveLanguage(value) })}
+            />
+          }
+        />
+        <Row
+          label={labels.petHoverOpacity}
+          control={
+            <SliderControl
+              value={draft.petHoverOpacity}
+              min={0}
+              max={1}
+              step={0.05}
+              onChange={(petHoverOpacity) => updateDraft({ petHoverOpacity })}
             />
           }
         />

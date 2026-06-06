@@ -133,6 +133,7 @@ export const I18N = {
       testTools: "测试工具",
       language: "语言",
       petAppearance: "宠物形象",
+      petHoverOpacity: "宠物悬停透明度",
       customPet: "自定义",
       customPetAssets: "自定义素材",
       customPetRequirements: "仅支持 GIF；默认状态素材必填，其它状态可选；建议使用透明背景并保持主体大小一致",
@@ -373,6 +374,7 @@ export const I18N = {
       testTools: "Test Tools",
       language: "Language",
       petAppearance: "Pet",
+      petHoverOpacity: "Pet Hover Opacity",
       customPet: "Custom",
       customPetAssets: "Custom Assets",
       customPetRequirements:

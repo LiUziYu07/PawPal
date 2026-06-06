@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { JSX, PointerEvent } from "react";
 import { i18n, resolveLanguage } from "../../../shared/i18n";
 import type { PetState, SpeechBubble } from "../../../shared/types";
@@ -43,6 +43,8 @@ export function PetView(): JSX.Element {
   const [assetVariant, setAssetVariant] = useState(0);
   const [assetReplayKey, setAssetReplayKey] = useState(0);
   const [stateSignal, setStateSignal] = useState(0);
+  const [clicked, setClicked] = useState(false);
+  const clickedTimerRef = useRef<number | null>(null);
   const dragRef = useRef<DragRef | null>(null);
   const mouseInteractiveRef = useRef<boolean | null>(null);
   const lastMousePointRef = useRef<{ x: number; y: number } | null>(null);
@@ -67,7 +69,20 @@ export function PetView(): JSX.Element {
   const customAppearance = snapshot.settings.customPetAppearance;
   const asset = getPetAsset(appearanceId, state, assetVariant, assetReplayKey, customAppearance);
 
-  function finishPointerDrag(clicked: boolean): void {
+  const suppressGlassEffect = useCallback(() => {
+    if (clickedTimerRef.current !== null) window.clearTimeout(clickedTimerRef.current);
+    setClicked(true);
+    clickedTimerRef.current = window.setTimeout(() => {
+      setClicked(false);
+      clickedTimerRef.current = null;
+    }, 2000);
+  }, []);
+
+  useEffect(() => {
+    return () => { if (clickedTimerRef.current !== null) window.clearTimeout(clickedTimerRef.current); };
+  }, []);
+
+  function finishPointerDrag(wasClicked: boolean): void {
     const drag = dragRef.current;
     if (!drag) return;
     dragRef.current = null;
@@ -75,7 +90,10 @@ export function PetView(): JSX.Element {
       window.pawpal.petDragStop();
       return;
     }
-    if (clicked) window.pawpal.petClicked();
+    if (wasClicked) {
+      suppressGlassEffect();
+      window.pawpal.petClicked();
+    }
   }
 
   function setMouseInteractive(interactive: boolean): void {
@@ -235,9 +253,10 @@ export function PetView(): JSX.Element {
       ) : null}
 
       <button
-        className={`pet-button state-${state} ${facingClass} ${
-          asset.isPlaceholder ? "placeholder-asset" : ""
-        }`}
+        className={`pet-button state-${state} ${facingClass}${
+          asset.isPlaceholder ? " placeholder-asset" : ""
+        }${clicked ? " is-clicked" : ""}`}
+        style={{ "--pet-hover-opacity": snapshot.settings.petHoverOpacity } as React.CSSProperties}
         onPointerCancel={cancelPointer}
         onPointerDown={startPointer}
         onLostPointerCapture={() => finishPointerDrag(false)}
