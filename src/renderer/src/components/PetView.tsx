@@ -219,53 +219,60 @@ export function PetView(): JSX.Element {
   return (
     <main
       className="pet-shell"
+      style={
+        {
+          "--pet-hover-opacity": snapshot.settings.petHoverOpacity,
+          "--pet-scale": snapshot.settings.petScale
+        } as React.CSSProperties
+      }
       aria-label="PawPal desktop pet"
       onContextMenu={(event) => {
         event.preventDefault();
         window.pawpal.petContextMenu();
       }}
     >
-      {bubble ? (
-        <section className="speech-bubble">
-          <p>{bubble.message}</p>
-          {bubble.actions?.length ? (
-            <div className="bubble-actions">
-              {bubble.actions.map((action) => (
-                <button
-                  className={`bubble-button ${action.kind ?? "secondary"}`}
-                  key={action.id}
-                  onClick={() => window.pawpal.bubbleAction(action.id)}
-                  type="button"
-                >
-                  {action.label}
-                </button>
-              ))}
-            </div>
-          ) : null}
-        </section>
-      ) : null}
+      <div className="pet-shell__scale">
+        {bubble ? (
+          <section className="speech-bubble">
+            <p>{bubble.message}</p>
+            {bubble.actions?.length ? (
+              <div className="bubble-actions">
+                {bubble.actions.map((action) => (
+                  <button
+                    className={`bubble-button ${action.kind ?? "secondary"}`}
+                    key={action.id}
+                    onClick={() => window.pawpal.bubbleAction(action.id)}
+                    type="button"
+                  >
+                    {action.label}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+          </section>
+        ) : null}
 
-      {snapshot.focusActive ? (
-        <div className="focus-badge">
-          <span>{labels.focus}</span>
-          <strong>{formatFocusCountdown(snapshot.timers.focusEndsAt, now)}</strong>
-        </div>
-      ) : null}
+        {snapshot.focusActive ? (
+          <div className="focus-badge">
+            <span>{labels.focus}</span>
+            <strong>{formatFocusCountdown(snapshot.timers.focusEndsAt, now)}</strong>
+          </div>
+        ) : null}
 
-      <button
-        className={`pet-button state-${state} ${facingClass}${
-          asset.isPlaceholder ? " placeholder-asset" : ""
-        }${clicked ? " is-clicked" : ""}`}
-        style={{ "--pet-hover-opacity": snapshot.settings.petHoverOpacity } as React.CSSProperties}
-        onPointerCancel={cancelPointer}
-        onPointerDown={startPointer}
-        onLostPointerCapture={() => finishPointerDrag(false)}
-        onPointerMove={movePointer}
-        onPointerUp={stopPointer}
-        type="button"
-      >
-        <img draggable={false} src={asset.src} alt={altText} />
-      </button>
+        <button
+          className={`pet-button state-${state} ${facingClass}${
+            asset.isPlaceholder ? " placeholder-asset" : ""
+          }${clicked ? " is-clicked" : ""}`}
+          onPointerCancel={cancelPointer}
+          onPointerDown={startPointer}
+          onLostPointerCapture={() => finishPointerDrag(false)}
+          onPointerMove={movePointer}
+          onPointerUp={stopPointer}
+          type="button"
+        >
+          <img draggable={false} src={asset.src} alt={altText} />
+        </button>
+      </div>
     </main>
   );
 }

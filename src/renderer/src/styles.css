@@ -30,11 +30,24 @@ textarea {
   background: transparent;
   display: flex;
   flex-direction: column;
-  height: 340px;
+  height: calc(340px * var(--pet-scale, 1));
   justify-content: flex-end;
   padding: 0 4px;
   pointer-events: none;
   position: relative;
+  width: calc(220px * var(--pet-scale, 1));
+}
+
+.pet-shell__scale {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  height: 340px;
+  justify-content: flex-end;
+  pointer-events: none;
+  position: relative;
+  transform: scale(var(--pet-scale, 1));
+  transform-origin: bottom center;
   width: 220px;
 }
 

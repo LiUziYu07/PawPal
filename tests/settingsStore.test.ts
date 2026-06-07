@@ -29,6 +29,7 @@ export const tests = [
         petAppearanceId: "lovartPuppy",
         launchAtLoginEnabled: true,
         checkUpdatesOnLaunchEnabled: true,
+        petScale: 1.25,
         breakRunDurationSeconds: 90
       });
 
@@ -36,7 +37,19 @@ export const tests = [
       assert.equal(settings.petAppearanceId, "lovartPuppy");
       assert.equal(settings.launchAtLoginEnabled, true);
       assert.equal(settings.checkUpdatesOnLaunchEnabled, true);
+      assert.equal(settings.petScale, 1.25);
       assert.equal(settings.breakRunDurationSeconds, 90);
+    }
+  },
+  {
+    name: "normalizeSettings clamps pet scale to supported range",
+    run(): void {
+      assert.equal(normalizeSettings({ petScale: 0.2 }).petScale, 0.75);
+      assert.equal(normalizeSettings({ petScale: 2 }).petScale, 1.5);
+      assert.equal(
+        normalizeSettings({ petScale: Number.NaN }).petScale,
+        DEFAULT_SETTINGS.petScale
+      );
     }
   },
   {

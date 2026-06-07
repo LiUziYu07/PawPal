@@ -52,6 +52,7 @@ export type Settings = {
   language: Language;
   petAppearanceId: PetAppearanceId;
   petHoverOpacity: number;
+  petScale: number;
   customPetAppearance: CustomPetAppearance | null;
   onboardingDismissed: boolean;
   launchAtLoginEnabled: boolean;

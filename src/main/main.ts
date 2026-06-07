@@ -149,14 +149,42 @@ function getSettings(): Settings {
   return getStoredSettings(store);
 }
 
+function currentPetWindowSize(): { width: number; height: number } {
+  const scale = getSettings().petScale;
+  return {
+    width: Math.round(PET_WINDOW.width * scale),
+    height: Math.round(PET_WINDOW.height * scale)
+  };
+}
+
 function text(): ReturnType<typeof i18n> {
   return i18n(getSettings().language);
+}
+
+function resizePetWindowForSettings(): void {
+  if (!petWindow || petWindow.isDestroyed()) return;
+  const bounds = petWindow.getBounds();
+  const size = currentPetWindowSize();
+  const nextBounds = visibleWindowBounds(currentDisplays(), primaryDisplay(), {
+    ...bounds,
+    ...size
+  });
+  if (
+    bounds.x !== nextBounds.x ||
+    bounds.y !== nextBounds.y ||
+    bounds.width !== nextBounds.width ||
+    bounds.height !== nextBounds.height
+  ) {
+    petWindow.setBounds(nextBounds);
+  }
+  persistPetPosition();
 }
 
 function setSettings(next: Settings): void {
   const normalized = normalizeSettings(next);
   applyLaunchAtLoginPreference(normalized.launchAtLoginEnabled);
   store.set("settings", normalized);
+  resizePetWindowForSettings();
   sendToAll("settings:updated", getSettingsWithSystemState());
   settingsWindow?.setTitle(`${APP_NAME} ${text().menu.settings}`);
   scheduleReminderTimers();
@@ -340,7 +368,7 @@ function initialPetBounds(): Electron.Rectangle {
   return initialWindowBounds({
     displays: currentDisplays(),
     primaryDisplay: primaryDisplay(),
-    size: PET_WINDOW,
+    size: currentPetWindowSize(),
     saved: stored
   });
 }
@@ -380,8 +408,8 @@ function createPetWindow(): void {
   const bounds = initialPetBounds();
   petMouseInteractive = true;
   petWindow = new BrowserWindow({
-    width: PET_WINDOW.width,
-    height: PET_WINDOW.height,
+    width: bounds.width,
+    height: bounds.height,
     x: bounds.x,
     y: bounds.y,
     transparent: true,
@@ -560,9 +588,10 @@ function showPetContextMenu(): void {
 function movePetWithCursor(): void {
   if (!petWindow || petWindow.isDestroyed()) return;
   const cursor = screen.getCursorScreenPoint();
+  const size = currentPetWindowSize();
   const bounds = visibleWindowBounds(currentDisplays(), primaryDisplay(), {
-    width: PET_WINDOW.width,
-    height: PET_WINDOW.height,
+    width: size.width,
+    height: size.height,
     x: cursor.x - dragOffset.x,
     y: cursor.y - dragOffset.y
   });
@@ -571,9 +600,10 @@ function movePetWithCursor(): void {
 
 function startPetDrag(offset: { offsetX: number; offsetY: number }): void {
   if (blockingMode === "breakRun" || !petWindow || petWindow.isDestroyed()) return;
+  const size = currentPetWindowSize();
   dragOffset = {
-    x: Math.min(Math.max(Math.round(offset.offsetX), 0), PET_WINDOW.width),
-    y: Math.min(Math.max(Math.round(offset.offsetY), 0), PET_WINDOW.height)
+    x: Math.min(Math.max(Math.round(offset.offsetX), 0), size.width),
+    y: Math.min(Math.max(Math.round(offset.offsetY), 0), size.height)
   };
   if (dragTimer) clearInterval(dragTimer);
   if (dragSafetyTimer) clearTimeout(dragSafetyTimer);
@@ -643,9 +673,9 @@ function movePetForBreakRun(): void {
   }).workArea;
   const now = Date.now();
   const minX = workArea.x + 8;
-  const maxX = workArea.x + workArea.width - PET_WINDOW.width - 8;
+  const maxX = workArea.x + workArea.width - bounds.width - 8;
   const minY = workArea.y + 8;
-  const maxY = workArea.y + workArea.height - PET_WINDOW.height - 8;
+  const maxY = workArea.y + workArea.height - bounds.height - 8;
 
   if (now >= nextBreakRunTurnAt && Math.random() < 0.45) {
     breakRunVelocity = chooseBreakRunVelocity();

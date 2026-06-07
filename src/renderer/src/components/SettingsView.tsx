@@ -484,6 +484,18 @@ export function SettingsView(): JSX.Element {
             />
           }
         />
+        <Row
+          label={labels.petScale}
+          control={
+            <SliderControl
+              value={draft.petScale}
+              min={0.75}
+              max={1.5}
+              step={0.05}
+              onChange={(petScale) => updateDraft({ petScale })}
+            />
+          }
+        />
         <div className="pref-block">
           <span className="pref-block__label">{labels.petAppearance}</span>
           <div className="pet-picker">
