@@ -161,6 +161,8 @@ function text(): ReturnType<typeof i18n> {
   return i18n(getSettings().language);
 }
 
+let resizeTimer: ReturnType<typeof setTimeout> | null = null;
+
 function resizePetWindowForSettings(): void {
   if (!petWindow || petWindow.isDestroyed()) return;
   const bounds = petWindow.getBounds();
@@ -180,11 +182,19 @@ function resizePetWindowForSettings(): void {
   persistPetPosition();
 }
 
+function debouncedResizePetWindow(): void {
+  if (resizeTimer) clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    resizePetWindowForSettings();
+    resizeTimer = null;
+  }, 300);
+}
+
 function setSettings(next: Settings): void {
   const normalized = normalizeSettings(next);
   applyLaunchAtLoginPreference(normalized.launchAtLoginEnabled);
   store.set("settings", normalized);
-  resizePetWindowForSettings();
+  debouncedResizePetWindow();
   sendToAll("settings:updated", getSettingsWithSystemState());
   settingsWindow?.setTitle(`${APP_NAME} ${text().menu.settings}`);
   scheduleReminderTimers();
