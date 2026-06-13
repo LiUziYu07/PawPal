@@ -93,7 +93,6 @@ export function PetView(): JSX.Element {
       return;
     }
     if (wasClicked) {
-      if (optionClickModeRef.current && !altKeyRef.current) return;
       suppressGlassEffect();
       window.pawpal.petClicked();
     }
@@ -127,7 +126,11 @@ export function PetView(): JSX.Element {
     const isOnBubble =
       bubbleVisibleRef.current && Boolean(target.closest(BUBBLE_INTERACTIVE_SELECTOR));
 
-    setMouseInteractive(isOnPet || isOnBubble);
+    if (optionClickModeRef.current && altKeyRef.current) {
+      setMouseInteractive(isOnBubble);
+    } else {
+      setMouseInteractive(isOnPet || isOnBubble);
+    }
   }
 
   useEffect(() => {
@@ -162,13 +165,6 @@ export function PetView(): JSX.Element {
       updateMouseInteractivity(null);
     };
 
-    const offAltKeyChange = window.pawpal.onAltKeyChange((pressed: boolean) => {
-      altKeyRef.current = pressed;
-      if (lastMousePointRef.current) {
-        updateMouseInteractivity(lastMousePointRef.current);
-      }
-    });
-
     setMouseInteractive(false);
     window.addEventListener("mousemove", trackMouse);
     window.addEventListener("mouseleave", clearMouse);
@@ -176,7 +172,6 @@ export function PetView(): JSX.Element {
     window.addEventListener("pointercancel", cancelActiveDrag);
     window.addEventListener("blur", cancelActiveDrag);
     return () => {
-      offAltKeyChange();
       window.removeEventListener("mousemove", trackMouse);
       window.removeEventListener("mouseleave", clearMouse);
       window.removeEventListener("pointerup", cancelActiveDrag);
