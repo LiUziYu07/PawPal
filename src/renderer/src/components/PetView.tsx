@@ -50,6 +50,7 @@ export function PetView(): JSX.Element {
   const lastMousePointRef = useRef<{ x: number; y: number } | null>(null);
   const bubbleVisibleRef = useRef(false);
   const altKeyRef = useRef(false);
+  const optionClickModeRef = useRef(false);
   const labels = i18n(resolveLanguage(snapshot.settings.language)).settings;
 
   useEffect(() => {
@@ -92,8 +93,7 @@ export function PetView(): JSX.Element {
       return;
     }
     if (wasClicked) {
-      const optionClickActive = snapshot.settings.optionClickMode;
-      if (optionClickActive && !altKeyRef.current) return;
+      if (optionClickModeRef.current && !altKeyRef.current) return;
       suppressGlassEffect();
       window.pawpal.petClicked();
     }
@@ -127,8 +127,7 @@ export function PetView(): JSX.Element {
     const isOnBubble =
       bubbleVisibleRef.current && Boolean(target.closest(BUBBLE_INTERACTIVE_SELECTOR));
 
-    if (snapshot.settings.optionClickMode) {
-      // In optionClickMode: bubbles always interactive, pet only when Option held
+    if (optionClickModeRef.current) {
       setMouseInteractive(isOnBubble || (altKeyRef.current && isOnPet));
     } else {
       setMouseInteractive(isOnPet || isOnBubble);
@@ -195,6 +194,11 @@ export function PetView(): JSX.Element {
     bubbleVisibleRef.current = Boolean(bubble);
     updateMouseInteractivity(lastMousePointRef.current);
   }, [bubble]);
+
+  useEffect(() => {
+    optionClickModeRef.current = snapshot.settings.optionClickMode;
+    updateMouseInteractivity(lastMousePointRef.current);
+  }, [snapshot.settings.optionClickMode]);
 
   function startPointer(event: PointerEvent<HTMLButtonElement>): void {
     if (event.button !== 0) return;
