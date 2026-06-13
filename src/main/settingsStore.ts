@@ -1,4 +1,4 @@
-import { DEFAULT_SETTINGS } from "../shared/constants";
+import { DEFAULT_SETTINGS, resolveClickThroughModifierKey } from "../shared/constants";
 import { resolveLanguage } from "../shared/i18n";
 import {
   hasRequiredCustomPetAssets,
@@ -21,9 +21,15 @@ function normalizeFiniteNumber(value: unknown, fallback: number, min: number, ma
   return Math.min(max, Math.max(min, value));
 }
 
-export function normalizeSettings(stored: Partial<Settings> = {}): Settings {
+export function normalizeSettings(stored: Partial<Settings> & Record<string, unknown> = {}): Settings {
   const customPetAppearance = normalizeCustomPetAppearance(stored.customPetAppearance);
   const petAppearanceId = resolvePetAppearanceId(stored.petAppearanceId ?? DEFAULT_SETTINGS.petAppearanceId);
+
+  // Migrate optionClickMode (boolean) → clickThroughModifierKey (enum)
+  let clickThroughModifierKey: string | undefined = stored.clickThroughModifierKey as string | undefined;
+  if (clickThroughModifierKey === undefined && "optionClickMode" in stored) {
+    clickThroughModifierKey = stored.optionClickMode === true ? "option" : "none";
+  }
 
   return {
     ...DEFAULT_SETTINGS,
@@ -43,7 +49,8 @@ export function normalizeSettings(stored: Partial<Settings> = {}): Settings {
       stored.breakRunDurationSeconds,
       DEFAULT_SETTINGS.breakRunDurationSeconds,
       10
-    )
+    ),
+    clickThroughModifierKey: resolveClickThroughModifierKey(clickThroughModifierKey)
   };
 }
 

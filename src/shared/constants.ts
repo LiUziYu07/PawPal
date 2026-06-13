@@ -1,4 +1,19 @@
-import type { Settings, TodayStats } from "./types";
+import type { ClickThroughModifierKey, Settings, TodayStats } from "./types";
+
+export const CLICK_THROUGH_MODIFIER_KEYS: readonly ClickThroughModifierKey[] = [
+  "none",
+  "option",
+  "command",
+  "shift",
+  "control"
+];
+
+export function resolveClickThroughModifierKey(value: unknown): ClickThroughModifierKey {
+  if (CLICK_THROUGH_MODIFIER_KEYS.includes(value as ClickThroughModifierKey)) {
+    return value as ClickThroughModifierKey;
+  }
+  return "none";
+}
 
 export const DEFAULT_SETTINGS: Settings = {
   language: "zh-CN",
@@ -54,7 +69,7 @@ export const DEFAULT_SETTINGS: Settings = {
     "虎扑",
     "贴吧"
   ],
-  optionClickMode: false
+  clickThroughModifierKey: "none"
 };
 
 export function todayKey(date = new Date()): string {

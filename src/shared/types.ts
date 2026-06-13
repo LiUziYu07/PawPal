@@ -46,6 +46,8 @@ export type SpeechBubble = {
   autoDismissMs?: number;
 };
 
+export type ClickThroughModifierKey = "none" | "option" | "command" | "shift" | "control";
+
 export type BlockingMode = "break" | "breakRun" | "hydration" | "focusWarning" | null;
 
 export type Settings = {
@@ -67,7 +69,7 @@ export type Settings = {
   distractionGraceSeconds: number;
   distractionBlockedApps: string[];
   distractionBlockedKeywords: string[];
-  optionClickMode: boolean;
+  clickThroughModifierKey: ClickThroughModifierKey;
 };
 
 export type TodayStats = {

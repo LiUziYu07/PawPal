@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { JSX, PointerEvent } from "react";
 import { i18n, resolveLanguage } from "../../../shared/i18n";
-import type { PetState, SpeechBubble } from "../../../shared/types";
+import type { ClickThroughModifierKey, PetState, SpeechBubble } from "../../../shared/types";
 import { getPetAsset, getPetAssetVariantCount } from "../assets";
 import { useNow, useSnapshot } from "../hooks";
 import { pointInElementHitbox } from "../petHitbox";
@@ -15,6 +15,13 @@ type DragRef = {
 
 const CONTINUOUS_ASSET_STATES = new Set<PetState>(["idle", "focusGuard"]);
 const CONTINUOUS_ASSET_ROTATION_MS = 15 * 60 * 1000;
+const MODIFIER_KEY_MAP: Record<Exclude<ClickThroughModifierKey, "none">, "altKey" | "ctrlKey" | "shiftKey" | "metaKey"> = {
+  option: "altKey",
+  command: "metaKey",
+  shift: "shiftKey",
+  control: "ctrlKey"
+};
+
 const DRAG_START_DISTANCE_PX = 10;
 const PET_BUTTON_SELECTOR = ".pet-button";
 const BUBBLE_INTERACTIVE_SELECTOR = ".speech-bubble";
@@ -49,8 +56,8 @@ export function PetView(): JSX.Element {
   const mouseInteractiveRef = useRef<boolean | null>(null);
   const lastMousePointRef = useRef<{ x: number; y: number } | null>(null);
   const bubbleVisibleRef = useRef(false);
-  const altKeyRef = useRef(false);
-  const optionClickModeRef = useRef(false);
+  const modifierPressedRef = useRef(false);
+  const clickThroughKeyRef = useRef<ClickThroughModifierKey>("none");
   const labels = i18n(resolveLanguage(snapshot.settings.language)).settings;
 
   useEffect(() => {
@@ -126,7 +133,7 @@ export function PetView(): JSX.Element {
     const isOnBubble =
       bubbleVisibleRef.current && Boolean(target.closest(BUBBLE_INTERACTIVE_SELECTOR));
 
-    if (optionClickModeRef.current && altKeyRef.current) {
+    if (clickThroughKeyRef.current !== "none" && modifierPressedRef.current) {
       setMouseInteractive(isOnBubble);
     } else {
       setMouseInteractive(isOnPet || isOnBubble);
@@ -157,7 +164,10 @@ export function PetView(): JSX.Element {
     const trackMouse = (event: MouseEvent): void => {
       const point = { x: event.clientX, y: event.clientY };
       lastMousePointRef.current = point;
-      altKeyRef.current = event.altKey;
+      const key = clickThroughKeyRef.current;
+      if (key !== "none") {
+        modifierPressedRef.current = event[MODIFIER_KEY_MAP[key]];
+      }
       updateMouseInteractivity(point);
     };
     const clearMouse = (): void => {
@@ -187,9 +197,9 @@ export function PetView(): JSX.Element {
   }, [bubble]);
 
   useEffect(() => {
-    optionClickModeRef.current = snapshot.settings.optionClickMode;
+    clickThroughKeyRef.current = snapshot.settings.clickThroughModifierKey;
     updateMouseInteractivity(lastMousePointRef.current);
-  }, [snapshot.settings.optionClickMode]);
+  }, [snapshot.settings.clickThroughModifierKey]);
 
   function startPointer(event: PointerEvent<HTMLButtonElement>): void {
     if (event.button !== 0) return;

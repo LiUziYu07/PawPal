@@ -11,6 +11,7 @@ import {
 } from "../../../shared/petAppearances";
 import type {
   BuiltInPetAppearanceId,
+  ClickThroughModifierKey,
   CustomPetAppearance,
   CustomPetAsset,
   DemoTrigger,
@@ -18,11 +19,22 @@ import type {
   Settings,
   UpdateCheckResult
 } from "../../../shared/types";
+import { CLICK_THROUGH_MODIFIER_KEYS, resolveClickThroughModifierKey } from "../../../shared/constants";
 import { getPetAsset } from "../assets";
 import { distractionHelp, formatDistractionState, formatTimer, formatTimestamp, localeFor } from "../format";
 import { useNow, useSnapshot } from "../hooks";
 
 type SettingsCopy = ReturnType<typeof i18n>["settings"];
+
+function modifierKeyLabel(key: ClickThroughModifierKey, labels: SettingsCopy): string {
+  switch (key) {
+    case "none": return labels.clickThroughModifierKeyNone;
+    case "option": return labels.clickThroughModifierKeyOption;
+    case "command": return labels.clickThroughModifierKeyCommand;
+    case "shift": return labels.clickThroughModifierKeyShift;
+    case "control": return labels.clickThroughModifierKeyControl;
+  }
+}
 
 function Row({
   label,
@@ -497,14 +509,19 @@ export function SettingsView(): JSX.Element {
           }
         />
         <Row
-          label={labels.optionClickMode}
-          hint={labels.optionClickModeHelp}
+          label={labels.clickThroughModifierKey}
+          hint={labels.clickThroughModifierKeyHelp}
           control={
-            <ToggleControl
-              checked={draft.optionClickMode}
-              onChange={(optionClickMode) => updateDraft({ optionClickMode })}
-              ariaLabel={labels.optionClickMode}
-            />
+            <select
+              className="pref-select"
+              value={draft.clickThroughModifierKey}
+              onChange={(event) => updateDraft({ clickThroughModifierKey: event.target.value as ClickThroughModifierKey })}
+              aria-label={labels.clickThroughModifierKey}
+            >
+              {CLICK_THROUGH_MODIFIER_KEYS.map((key) => (
+                <option key={key} value={key}>{modifierKeyLabel(key, labels)}</option>
+              ))}
+            </select>
           }
         />
         <div className="pref-block">
