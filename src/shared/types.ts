@@ -67,6 +67,7 @@ export type Settings = {
   distractionGraceSeconds: number;
   distractionBlockedApps: string[];
   distractionBlockedKeywords: string[];
+  optionClickMode: boolean;
 };
 
 export type TodayStats = {

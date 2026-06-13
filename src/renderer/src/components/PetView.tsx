@@ -49,6 +49,7 @@ export function PetView(): JSX.Element {
   const mouseInteractiveRef = useRef<boolean | null>(null);
   const lastMousePointRef = useRef<{ x: number; y: number } | null>(null);
   const bubbleVisibleRef = useRef(false);
+  const altKeyRef = useRef(false);
   const labels = i18n(resolveLanguage(snapshot.settings.language)).settings;
 
   useEffect(() => {
@@ -91,6 +92,8 @@ export function PetView(): JSX.Element {
       return;
     }
     if (wasClicked) {
+      const optionClickActive = snapshot.settings.optionClickMode;
+      if (optionClickActive && !altKeyRef.current) return;
       suppressGlassEffect();
       window.pawpal.petClicked();
     }
@@ -124,7 +127,12 @@ export function PetView(): JSX.Element {
     const isOnBubble =
       bubbleVisibleRef.current && Boolean(target.closest(BUBBLE_INTERACTIVE_SELECTOR));
 
-    setMouseInteractive(isOnPet || isOnBubble);
+    if (snapshot.settings.optionClickMode) {
+      // In optionClickMode: bubbles always interactive, pet only when Option held
+      setMouseInteractive(isOnBubble || (altKeyRef.current && isOnPet));
+    } else {
+      setMouseInteractive(isOnPet || isOnBubble);
+    }
   }
 
   useEffect(() => {
@@ -151,21 +159,33 @@ export function PetView(): JSX.Element {
     const trackMouse = (event: MouseEvent): void => {
       const point = { x: event.clientX, y: event.clientY };
       lastMousePointRef.current = point;
+      altKeyRef.current = event.altKey;
       updateMouseInteractivity(point);
+    };
+    const trackAltKey = (event: KeyboardEvent): void => {
+      altKeyRef.current = event.altKey;
+      if (lastMousePointRef.current) {
+        updateMouseInteractivity(lastMousePointRef.current);
+      }
     };
     const clearMouse = (): void => {
       lastMousePointRef.current = null;
+      altKeyRef.current = false;
       updateMouseInteractivity(null);
     };
 
     setMouseInteractive(false);
     window.addEventListener("mousemove", trackMouse);
+    window.addEventListener("keydown", trackAltKey);
+    window.addEventListener("keyup", trackAltKey);
     window.addEventListener("mouseleave", clearMouse);
     window.addEventListener("pointerup", cancelActiveDrag);
     window.addEventListener("pointercancel", cancelActiveDrag);
     window.addEventListener("blur", cancelActiveDrag);
     return () => {
       window.removeEventListener("mousemove", trackMouse);
+      window.removeEventListener("keydown", trackAltKey);
+      window.removeEventListener("keyup", trackAltKey);
       window.removeEventListener("mouseleave", clearMouse);
       window.removeEventListener("pointerup", cancelActiveDrag);
       window.removeEventListener("pointercancel", cancelActiveDrag);

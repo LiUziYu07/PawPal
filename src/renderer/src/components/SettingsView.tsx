@@ -496,6 +496,17 @@ export function SettingsView(): JSX.Element {
             />
           }
         />
+        <Row
+          label={labels.optionClickMode}
+          hint={labels.optionClickModeHelp}
+          control={
+            <ToggleControl
+              checked={draft.optionClickMode}
+              onChange={(optionClickMode) => updateDraft({ optionClickMode })}
+              ariaLabel={labels.optionClickMode}
+            />
+          }
+        />
         <div className="pref-block">
           <span className="pref-block__label">{labels.petAppearance}</span>
           <div className="pet-picker">

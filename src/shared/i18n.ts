@@ -135,6 +135,8 @@ export const I18N = {
       petAppearance: "宠物形象",
       petScale: "PawPal 大小",
       petHoverOpacity: "宠物悬停透明度",
+      optionClickMode: "Option-Click 模式",
+      optionClickModeHelp: "开启后，普通点击会穿透宠物；按住 Option 键再点击才能交互，拖拽始终可用",
       customPet: "自定义",
       customPetAssets: "自定义素材",
       customPetRequirements: "仅支持 GIF；默认状态素材必填，其它状态可选；建议使用透明背景并保持主体大小一致",
@@ -377,6 +379,8 @@ export const I18N = {
       petAppearance: "Pet",
       petScale: "PawPal Size",
       petHoverOpacity: "Pet Hover Opacity",
+      optionClickMode: "Option-Click Mode",
+      optionClickModeHelp: "When enabled, regular clicks pass through the pet; hold Option to interact. Dragging always works.",
       customPet: "Custom",
       customPetAssets: "Custom Assets",
       customPetRequirements:
