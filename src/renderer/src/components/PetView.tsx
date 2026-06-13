@@ -127,11 +127,7 @@ export function PetView(): JSX.Element {
     const isOnBubble =
       bubbleVisibleRef.current && Boolean(target.closest(BUBBLE_INTERACTIVE_SELECTOR));
 
-    if (optionClickModeRef.current) {
-      setMouseInteractive(isOnBubble || (altKeyRef.current && isOnPet));
-    } else {
-      setMouseInteractive(isOnPet || isOnBubble);
-    }
+    setMouseInteractive(isOnPet || isOnBubble);
   }
 
   useEffect(() => {
