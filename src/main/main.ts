@@ -1,6 +1,7 @@
 import { basename, extname, join, resolve, sep } from "node:path";
 import { pathToFileURL } from "node:url";
 import { copyFile, mkdir } from "node:fs/promises";
+import { platform } from "node:os";
 import {
   app,
   BrowserWindow,
@@ -55,6 +56,7 @@ import {
 } from "./displayPosition";
 import type { DisplayBounds, SavedWindowPosition } from "./displayPosition";
 import { classifyDistraction, isPermissionError, readActiveWindow } from "./distraction";
+import { getOptionKeyStateMacos } from "./modifierKey";
 import { applyLaunchAtLoginPreference, getLaunchAtLoginState } from "./loginItem";
 import {
   buildApplicationMenuTemplate,
@@ -138,6 +140,8 @@ let distractionStatus: DistractionStatus = {
   error: null
 };
 let updateCheck: UpdateCheckResult = createInitialUpdateCheck();
+let optionKeyPoller: ReturnType<typeof setInterval> | null = null;
+let lastOptionKeyState = false;
 
 function setPetMouseInteractive(interactive: boolean): void {
   if (!petWindow || petWindow.isDestroyed() || petMouseInteractive === interactive) return;
@@ -200,6 +204,7 @@ function setSettings(next: Settings): void {
   scheduleReminderTimers();
   scheduleDistractionDetection();
   updateTrayMenu();
+  updateOptionKeyPoller();
 }
 
 function getSettingsWithSystemState(): Settings {
@@ -914,11 +919,38 @@ function resumeLongTermState(): void {
   if (showOverdueReminder()) return;
   if (focusActive) {
     setPetState("focusGuard");
-    sendToAll("app:snapshot", snapshot());
+    publishSnapshot();
     return;
   }
   setPetState("idle");
-  sendToAll("app:snapshot", snapshot());
+  publishSnapshot();
+}
+
+const OPTION_KEY_POLL_INTERVAL_MS = 80;
+
+function updateOptionKeyPoller(): void {
+  const shouldPoll = getSettings().optionClickMode;
+  if (shouldPoll && !optionKeyPoller) {
+    optionKeyPoller = setInterval(() => void pollOptionKey(), OPTION_KEY_POLL_INTERVAL_MS);
+  } else if (!shouldPoll && optionKeyPoller) {
+    clearInterval(optionKeyPoller);
+    optionKeyPoller = null;
+  }
+  if (!shouldPoll) {
+    lastOptionKeyState = false;
+    petWindow?.webContents.send("pet:alt-key-change", false);
+  }
+}
+
+async function pollOptionKey(): Promise<void> {
+  if (!petWindow || petWindow.isDestroyed()) return;
+  const isPressed = platform() === "darwin"
+    ? await getOptionKeyStateMacos()
+    : false;
+  if (isPressed !== lastOptionKeyState) {
+    lastOptionKeyState = isPressed;
+    petWindow.webContents.send("pet:alt-key-change", isPressed);
+  }
 }
 
 function happyFeedback(message: string | null = pick(text().bubble.woof), after?: () => void): void {
@@ -1256,6 +1288,7 @@ app.whenReady().then(() => {
   registerDisplayChangeHandlers();
   scheduleReminderTimers();
   scheduleDistractionDetection();
+  updateOptionKeyPoller();
   if (IS_DEV) {
     createSettingsWindow();
   }

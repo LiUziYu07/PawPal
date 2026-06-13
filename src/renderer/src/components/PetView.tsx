@@ -162,30 +162,27 @@ export function PetView(): JSX.Element {
       altKeyRef.current = event.altKey;
       updateMouseInteractivity(point);
     };
-    const trackAltKey = (event: KeyboardEvent): void => {
-      altKeyRef.current = event.altKey;
-      if (lastMousePointRef.current) {
-        updateMouseInteractivity(lastMousePointRef.current);
-      }
-    };
     const clearMouse = (): void => {
       lastMousePointRef.current = null;
-      altKeyRef.current = false;
       updateMouseInteractivity(null);
     };
 
+    const offAltKeyChange = window.pawpal.onAltKeyChange((pressed: boolean) => {
+      altKeyRef.current = pressed;
+      if (lastMousePointRef.current) {
+        updateMouseInteractivity(lastMousePointRef.current);
+      }
+    });
+
     setMouseInteractive(false);
     window.addEventListener("mousemove", trackMouse);
-    window.addEventListener("keydown", trackAltKey);
-    window.addEventListener("keyup", trackAltKey);
     window.addEventListener("mouseleave", clearMouse);
     window.addEventListener("pointerup", cancelActiveDrag);
     window.addEventListener("pointercancel", cancelActiveDrag);
     window.addEventListener("blur", cancelActiveDrag);
     return () => {
+      offAltKeyChange();
       window.removeEventListener("mousemove", trackMouse);
-      window.removeEventListener("keydown", trackAltKey);
-      window.removeEventListener("keyup", trackAltKey);
       window.removeEventListener("mouseleave", clearMouse);
       window.removeEventListener("pointerup", cancelActiveDrag);
       window.removeEventListener("pointercancel", cancelActiveDrag);

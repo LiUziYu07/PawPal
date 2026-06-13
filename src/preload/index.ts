@@ -55,7 +55,9 @@ const api = {
   onStatsUpdated: (callback: (stats: TodayStats) => void): Unsubscribe =>
     onChannel("stats:updated", callback),
   onSnapshot: (callback: (snapshot: AppSnapshot) => void): Unsubscribe =>
-    onChannel("app:snapshot", callback)
+    onChannel("app:snapshot", callback),
+  onAltKeyChange: (callback: (pressed: boolean) => void): Unsubscribe =>
+    onChannel("pet:alt-key-change", callback)
 };
 
 contextBridge.exposeInMainWorld("pawpal", api);
